@@ -1,8 +1,21 @@
 package com.yeonny.back.controller;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.yeonny.back.dto.MessageDto;
+import com.yeonny.back.service.InMemoryMessageService;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -10,8 +23,30 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatController {
     
+    private final InMemoryMessageService messageService;
+
     @GetMapping("/hi")
     public String hi(){
         return "hi";
+    }
+
+    @PostMapping("/{roomName}")
+    public ResponseEntity<List<Object>> sendMessage(
+        @PathVariable String roomName,
+        @RequestBody MessageDto messageDto){
+
+        Map<String, Object> messageInfo = new HashMap<>();
+        String sentTime = LocalDateTime.now().toString();
+        
+        messageInfo.put("userName", messageDto.getUserName());
+        messageInfo.put("text", messageDto.getText());
+        messageInfo.put("hasRead", messageDto.getHasRead());
+        messageInfo.put("sentTime", sentTime);
+
+        messageService.saveMessageText(roomName, messageInfo);
+        
+        List<Object> messageList = messageService.getMessageList(roomName);
+
+        return ResponseEntity.ok(messageList);
     }
 }

@@ -7,9 +7,7 @@ import lombok.Data;
 
 @Data
 public class MessageDto {
-    private String roomName;
     private String userName;
     private String text;
     private List<String> hasRead;
-    private LocalDateTime createdAt;
 }
